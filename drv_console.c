@@ -35,19 +35,19 @@
 #include "freertos/FreeRTOS.h"
 #include "freertos/task.h"
 
-#include "drv_system_if.h"
-#include "drv_ota_if.h"
-#include "drv_eth_if.h"
-#include "drv_wifi_if.h"
-#include "drv_socket_if.h"
-#include "drv_stream_if.h"
-#include "drv_ping_if.h"
-#include "drv_w25n01gv_if.h"
-#include "drv_ext_spi_if.h"
-#include "drv_ht1302_if.h"
-#include "drv_nvs_if.h"
-#include "drv_log_if.h"
-#include "drv_fld12_spi_if.h"
+// #include "drv_system_if.h"
+// #include "drv_ota_if.h"
+// #include "drv_eth_if.h"
+// #include "drv_wifi_if.h"
+// #include "drv_socket_if.h"
+// #include "drv_stream_if.h"
+// #include "drv_ping_if.h"
+// #include "drv_w25n01gv_if.h"
+// #include "drv_ext_spi_if.h"
+// #include "drv_ht1302_if.h"
+// #include "drv_nvs_if.h"
+// #include "drv_log_if.h"
+// #include "drv_fld12_spi_if.h"
 
 /* *****************************************************************************
  * Configuration Definitions
@@ -106,34 +106,34 @@ uint32_t* last_caller_id = NULL;
 
 
 
-void drv_console_register_commands(void)
-{
-    esp_console_register_help_command();
-    cmd_system_register();
-    cmd_ota_register();
-    #if CONFIG_USE_ETHERNET
-    cmd_eth_register();
-    cmd_ethernet_iperf_register();
-    #endif
-    #if CONFIG_USE_WIFI
-    cmd_wifi_register();
-    #endif
-    cmd_socket_register();
-    cmd_stream_register();
-    cmd_ping_register();
-    #if CONFIG_USE_DRV_W25N01GV
-    cmd_w25n01gv_register();
-    #endif
-    #if CONFIG_DRV_EXT_SPI_USE
-    cmd_ext_spi_register();
-    #endif
-    cmd_ht1302_register();
-    cmd_nvs_register();
-    cmd_log_register();
-    #if CONFIG_USE_FLD12_SPI
-    cmd_fld12_spi_register();
-    #endif
-}
+// void drv_console_register_commands(void)
+// {
+//     esp_console_register_help_command();
+//     cmd_system_register();
+//     cmd_ota_register();
+//     #if CONFIG_USE_ETHERNET
+//     cmd_eth_register();
+//     cmd_ethernet_iperf_register();
+//     #endif
+//     #if CONFIG_USE_WIFI
+//     cmd_wifi_register();
+//     #endif
+//     cmd_socket_register();
+//     cmd_stream_register();
+//     cmd_ping_register();
+//     #if CONFIG_USE_DRV_W25N01GV
+//     cmd_w25n01gv_register();
+//     #endif
+//     #if CONFIG_DRV_EXT_SPI_USE
+//     cmd_ext_spi_register();
+//     #endif
+//     cmd_ht1302_register();
+//     cmd_nvs_register();
+//     cmd_log_register();
+//     #if CONFIG_USE_FLD12_SPI
+//     cmd_fld12_spi_register();
+//     #endif
+// }
 
 #if CONFIG_USE_NEW_CONSOLE
 #else
@@ -255,111 +255,111 @@ void set_console_uart_use(void)
 }
 #endif
 
-bool drv_console_get_log_disabled(void)
-{
-    if (bLogDisabled)
-    {
-    }
-    else
-    {
-        bLogWasLstPrinted = true;
-    }
-    return bLogDisabled;
-}
+// bool drv_console_get_log_disabled(void)
+// {
+//     if (bLogDisabled)
+//     {
+//     }
+//     else
+//     {
+//         bLogWasLstPrinted = true;
+//     }
+//     return bLogDisabled;
+// }
 
-bool drv_console_get_other_log_disabled(void)
-{
-    return bOtherLogDisabled;
-}
+// bool drv_console_get_other_log_disabled(void)
+// {
+//     return bOtherLogDisabled;
+// }
 
-bool drv_console_is_needed_finish_line(void)
-{
-    bool bReturn = bJustStartLog | bPromptPlaced;
+// bool drv_console_is_needed_finish_line(void)
+// {
+//     bool bReturn = bJustStartLog | bPromptPlaced;
 
-    last_caller_id = NULL;
+//     last_caller_id = NULL;
 
-    bJustStartLog = false;
+//     bJustStartLog = false;
 
-    bPromptPlaced = false;
+//     bPromptPlaced = false;
 
-    return bReturn;
-}
+//     return bReturn;
+// }
 
 
 
-bool drv_console_is_needed_finish_line_caller_check(uint32_t* caller_id)
-{
-    if (last_caller_id == caller_id)
-    {
-        return false;
-    }
-    if (drv_console_is_needed_finish_line())
-    {
-        last_caller_id = caller_id;
-        return true;
-    }
-    if (last_caller_id != caller_id)
-    {
-        last_caller_id = caller_id;
-        return true;
-    }
-    return false;
-}
+// bool drv_console_is_needed_finish_line_caller_check(uint32_t* caller_id)
+// {
+//     if (last_caller_id == caller_id)
+//     {
+//         return false;
+//     }
+//     if (drv_console_is_needed_finish_line())
+//     {
+//         last_caller_id = caller_id;
+//         return true;
+//     }
+//     if (last_caller_id != caller_id)
+//     {
+//         last_caller_id = caller_id;
+//         return true;
+//     }
+//     return false;
+// }
 
-void drv_console_set_needed_finish_line_caller(uint32_t* caller_id)
-{
-    bPromptPlaced = true;
-}
+// void drv_console_set_needed_finish_line_caller(uint32_t* caller_id)
+// {
+//     bPromptPlaced = true;
+// }
 
-void drv_console_set_log_disabled(void) /* used by cmd registered functions */
-{
-    #if CONFIG_USE_NEW_CONSOLE == 0
-    bLogDisabled = true;
-    #endif
-}
+// void drv_console_set_log_disabled(void) /* used by cmd registered functions */
+// {
+//     #if CONFIG_USE_NEW_CONSOLE == 0
+//     bLogDisabled = true;
+//     #endif
+// }
 
-void drv_console_set_log_enabled(void) /* used by cmd registered functions */
-{
-    bLogDisabled = false;
-}
+// void drv_console_set_log_enabled(void) /* used by cmd registered functions */
+// {
+//     bLogDisabled = false;
+// }
 
-void drv_console_set_other_log_disabled(void) /* used by cmd registered functions thah use ESP_LOG */
-{
-    #if CONFIG_USE_NEW_CONSOLE == 0
-    bOtherLogDisabled = true;
-    #endif
-}
+// void drv_console_set_other_log_disabled(void) /* used by cmd registered functions thah use ESP_LOG */
+// {
+//     #if CONFIG_USE_NEW_CONSOLE == 0
+//     bOtherLogDisabled = true;
+//     #endif
+// }
 
-void drv_console_set_other_log_enabled(void) /* used by cmd registered functions thah use ESP_LOG */
-{
-    bOtherLogDisabled = false;
-}
+// void drv_console_set_other_log_enabled(void) /* used by cmd registered functions thah use ESP_LOG */
+// {
+//     bOtherLogDisabled = false;
+// }
 
-bool drv_console_set_log_disabled_check_skipped(char* data, int size)   /* need printf("%s", prompt); if log was last printed */
-{
-    bool bReturn = bLogWasLstPrinted;
+// bool drv_console_set_log_disabled_check_skipped(char* data, int size)   /* need printf("%s", prompt); if log was last printed */
+// {
+//     bool bReturn = bLogWasLstPrinted;
 
-    if (bReturn)
-    {
-        printf("\r");
-        printf("%s", prompt);
-        #if 0
-        char * pString = malloc(size+1);
-        if (pString != NULL)
-        {
-            memcpy(pString, data, size);
-            pString[size] = 0;
-            printf("%s", pString);
-            free(pString);
-        }
-        #endif
-    }
+//     if (bReturn)
+//     {
+//         printf("\r");
+//         printf("%s", prompt);
+//         #if 0
+//         char * pString = malloc(size+1);
+//         if (pString != NULL)
+//         {
+//             memcpy(pString, data, size);
+//             pString[size] = 0;
+//             printf("%s", pString);
+//             free(pString);
+//         }
+//         #endif
+//     }
 
-    bLogWasLstPrinted = false;
+//     bLogWasLstPrinted = false;
         
-    bLogDisabled = true;
-    return bReturn;
-}
+//     bLogDisabled = true;
+//     return bReturn;
+// }
 
 
 void drv_console_init(void)
@@ -445,8 +445,8 @@ void drv_console_init(void)
 
 #endif
 
-
-    drv_console_register_commands();
+    esp_console_register_help_command();
+    //drv_console_register_commands();
 
     ESP_LOGI(TAG, "Console Initialization complete!");
 }

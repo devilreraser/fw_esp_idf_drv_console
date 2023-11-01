@@ -53,16 +53,16 @@ typedef enum
 /* *****************************************************************************
  * Function Prototypes
  **************************************************************************** */
-bool drv_console_get_log_disabled(void);
-bool drv_console_get_other_log_disabled(void);
-bool drv_console_is_needed_finish_line(void);
-bool drv_console_is_needed_finish_line_caller_check(uint32_t* caller_id);
-void drv_console_set_needed_finish_line_caller(uint32_t* caller_id);
-void drv_console_set_log_disabled(void);
-void drv_console_set_log_enabled(void);
-void drv_console_set_other_log_disabled(void);
-void drv_console_set_other_log_enabled(void);
-bool drv_console_set_log_disabled_check_skipped(char* data, int size);
+// bool drv_console_get_log_disabled(void);
+// bool drv_console_get_other_log_disabled(void);
+// bool drv_console_is_needed_finish_line(void);
+// bool drv_console_is_needed_finish_line_caller_check(uint32_t* caller_id);
+// void drv_console_set_needed_finish_line_caller(uint32_t* caller_id);
+// void drv_console_set_log_disabled(void);
+// void drv_console_set_log_enabled(void);
+// void drv_console_set_other_log_disabled(void);
+// void drv_console_set_other_log_enabled(void);
+// bool drv_console_set_log_disabled_check_skipped(char* data, int size);
 void drv_console_init(void);
 void drv_console_task(void);
 
