@@ -1,0 +1,20 @@
+idf_component_register(SRCS "drv_console.c" 
+                    INCLUDE_DIRS "." 
+                    REQUIRES    "spiffs"
+                                "console"
+                                "drv_system"
+                                "drv_ota"
+                                "drv_eth"
+                                "drv_wifi"
+                                "drv_socket"
+                                "drv_stream"
+                                "drv_ping"
+                                "drv_w25n01gv"
+                                "drv_ext_spi"
+                                "drv_ht1302"
+                                "drv_nvs"
+                                "drv_log"
+                                "drv_fld12_spi"
+                                      )
+                 
+

@@ -1,0 +1,7 @@
+menu "Component drv_console Configuration"
+
+    config USE_NEW_CONSOLE
+        bool "Use New Console"
+        default n
+
+endmenu
