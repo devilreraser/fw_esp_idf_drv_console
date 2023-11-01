@@ -20,6 +20,8 @@ extern "C"
  **************************************************************************** */
 #include <stdbool.h>   
 #include <stdint.h> 
+#include <sdkconfig.h>
+
 /* *****************************************************************************
  * Configuration Definitions
  **************************************************************************** */
@@ -53,16 +55,21 @@ typedef enum
 /* *****************************************************************************
  * Function Prototypes
  **************************************************************************** */
-// bool drv_console_get_log_disabled(void);
-// bool drv_console_get_other_log_disabled(void);
-// bool drv_console_is_needed_finish_line(void);
-// bool drv_console_is_needed_finish_line_caller_check(uint32_t* caller_id);
-// void drv_console_set_needed_finish_line_caller(uint32_t* caller_id);
-// void drv_console_set_log_disabled(void);
-// void drv_console_set_log_enabled(void);
-// void drv_console_set_other_log_disabled(void);
-// void drv_console_set_other_log_enabled(void);
-// bool drv_console_set_log_disabled_check_skipped(char* data, int size);
+#if CONFIG_DRV_CONSOLE_CUSTOM
+#if CONFIG_DRV_CONSOLE_CUSTOM_LOG_DISABLE_FIX
+bool drv_console_get_log_disabled(void);
+bool drv_console_get_other_log_disabled(void);
+bool drv_console_is_needed_finish_line(void);
+bool drv_console_is_needed_finish_line_caller_check(uint32_t* caller_id);
+void drv_console_set_needed_finish_line_caller(uint32_t* caller_id);
+void drv_console_set_log_disabled(void);
+void drv_console_set_log_enabled(void);
+void drv_console_set_other_log_disabled(void);
+void drv_console_set_other_log_enabled(void);
+bool drv_console_set_log_disabled_check_skipped(char* data, int size);
+#endif
+#endif
+
 void drv_console_init(void);
 void drv_console_task(void);
 

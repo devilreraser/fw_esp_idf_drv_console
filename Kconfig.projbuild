@@ -1,7 +1,12 @@
 menu "Component drv_console Configuration"
 
-    config USE_NEW_CONSOLE
-        bool "Use New Console"
+    config DRV_CONSOLE_CUSTOM
+        bool "Use Custom Console"
+        default n
+
+    config DRV_CONSOLE_CUSTOM_LOG_DISABLE_FIX
+        depends on DRV_CONSOLE_CUSTOM
+        bool "Use Custom Console Log Disable"
         default n
 
 endmenu

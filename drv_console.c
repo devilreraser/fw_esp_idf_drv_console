@@ -79,21 +79,34 @@
 /* *****************************************************************************
  * Variables Definitions
  **************************************************************************** */
+
+#if CONFIG_DRV_CONSOLE_CUSTOM
+
 bool bUseHistoryStore = false;
-bool bConsoleProcessing = false;
-bool bStopLogRequest = false;
-bool bLogDisabled = false;
+
 const char* prompt = LOG_COLOR_I PROMPT_STR "> " LOG_RESET_COLOR;
+bool bPromptPlaced = false;
+
 TaskHandle_t console_task_handle = NULL;
 
-bool bPromptPlaced = false;
-bool bJustStopLog = false;
-bool bJustStartLog = false;
-bool bLogWasLstPrinted = false;
 bool bDrvConsoleRunExec = false;
+
+bool bConsoleProcessing = false;
+
+bool bStopLogRequest = false;
+bool bLogDisabled = false;
 bool bOtherLogDisabled = false;
 
+bool bJustStopLog = false;
+bool bJustStartLog = false;
+
+#if CONFIG_DRV_CONSOLE_CUSTOM_LOG_DISABLE_FIX
+bool bLogWasLstPrinted = false;
 uint32_t* last_caller_id = NULL;
+#endif
+
+#endif
+
 
 
 /* *****************************************************************************
@@ -103,8 +116,6 @@ uint32_t* last_caller_id = NULL;
 /* *****************************************************************************
  * Functions
  **************************************************************************** */
-
-
 
 // void drv_console_register_commands(void)
 // {
@@ -135,8 +146,7 @@ uint32_t* last_caller_id = NULL;
 //     #endif
 // }
 
-#if CONFIG_USE_NEW_CONSOLE
-#else
+#if CONFIG_DRV_CONSOLE_CUSTOM
 void drv_console_config_prompt(void)
 {
     printf( "\n"
@@ -253,146 +263,121 @@ void set_console_uart_use(void)
     esp_vfs_dev_uart_use_driver(CONFIG_ESP_CONSOLE_UART_NUM);
 
 }
-#endif
 
-// bool drv_console_get_log_disabled(void)
-// {
-//     if (bLogDisabled)
-//     {
-//     }
-//     else
-//     {
-//         bLogWasLstPrinted = true;
-//     }
-//     return bLogDisabled;
-// }
+#if CONFIG_DRV_CONSOLE_CUSTOM_LOG_DISABLE_FIX
+bool drv_console_get_log_disabled(void)
+{
+    if (bLogDisabled)
+    {
+    }
+    else
+    {
+        bLogWasLstPrinted = true;
+    }
+    return bLogDisabled;
+}
 
-// bool drv_console_get_other_log_disabled(void)
-// {
-//     return bOtherLogDisabled;
-// }
+bool drv_console_get_other_log_disabled(void)
+{
+    return bOtherLogDisabled;
+}
 
-// bool drv_console_is_needed_finish_line(void)
-// {
-//     bool bReturn = bJustStartLog | bPromptPlaced;
+bool drv_console_is_needed_finish_line(void)
+{
+    bool bReturn = bJustStartLog | bPromptPlaced;
 
-//     last_caller_id = NULL;
+    last_caller_id = NULL;
 
-//     bJustStartLog = false;
+    bJustStartLog = false;
 
-//     bPromptPlaced = false;
+    bPromptPlaced = false;
 
-//     return bReturn;
-// }
+    return bReturn;
+}
 
+bool drv_console_is_needed_finish_line_caller_check(uint32_t* caller_id)
+{
+    if (last_caller_id == caller_id)
+    {
+        return false;
+    }
+    if (drv_console_is_needed_finish_line())
+    {
+        last_caller_id = caller_id;
+        return true;
+    }
+    if (last_caller_id != caller_id)
+    {
+        last_caller_id = caller_id;
+        return true;
+    }
+    return false;
+}
 
+void drv_console_set_needed_finish_line_caller(uint32_t* caller_id)
+{
+    bPromptPlaced = true;
+}
 
-// bool drv_console_is_needed_finish_line_caller_check(uint32_t* caller_id)
-// {
-//     if (last_caller_id == caller_id)
-//     {
-//         return false;
-//     }
-//     if (drv_console_is_needed_finish_line())
-//     {
-//         last_caller_id = caller_id;
-//         return true;
-//     }
-//     if (last_caller_id != caller_id)
-//     {
-//         last_caller_id = caller_id;
-//         return true;
-//     }
-//     return false;
-// }
+void drv_console_set_log_disabled(void) /* used by cmd registered functions */
+{
+    #if CONFIG_DRV_CONSOLE_CUSTOM
+    bLogDisabled = true;
+    #endif
+}
 
-// void drv_console_set_needed_finish_line_caller(uint32_t* caller_id)
-// {
-//     bPromptPlaced = true;
-// }
+void drv_console_set_log_enabled(void) /* used by cmd registered functions */
+{
+    bLogDisabled = false;
+}
 
-// void drv_console_set_log_disabled(void) /* used by cmd registered functions */
-// {
-//     #if CONFIG_USE_NEW_CONSOLE == 0
-//     bLogDisabled = true;
-//     #endif
-// }
+void drv_console_set_other_log_disabled(void) /* used by cmd registered functions thah use ESP_LOG */
+{
+    #if CONFIG_DRV_CONSOLE_CUSTOM
+    bOtherLogDisabled = true;
+    #endif
+}
 
-// void drv_console_set_log_enabled(void) /* used by cmd registered functions */
-// {
-//     bLogDisabled = false;
-// }
+void drv_console_set_other_log_enabled(void) /* used by cmd registered functions thah use ESP_LOG */
+{
+    bOtherLogDisabled = false;
+}
 
-// void drv_console_set_other_log_disabled(void) /* used by cmd registered functions thah use ESP_LOG */
-// {
-//     #if CONFIG_USE_NEW_CONSOLE == 0
-//     bOtherLogDisabled = true;
-//     #endif
-// }
+bool drv_console_set_log_disabled_check_skipped(char* data, int size)   /* need printf("%s", prompt); if log was last printed */
+{
+    bool bReturn = bLogWasLstPrinted;
 
-// void drv_console_set_other_log_enabled(void) /* used by cmd registered functions thah use ESP_LOG */
-// {
-//     bOtherLogDisabled = false;
-// }
+    if (bReturn)
+    {
+        printf("\r");
+        printf("%s", prompt);
+        #if 0
+        char * pString = malloc(size+1);
+        if (pString != NULL)
+        {
+            memcpy(pString, data, size);
+            pString[size] = 0;
+            printf("%s", pString);
+            free(pString);
+        }
+        #endif
+    }
 
-// bool drv_console_set_log_disabled_check_skipped(char* data, int size)   /* need printf("%s", prompt); if log was last printed */
-// {
-//     bool bReturn = bLogWasLstPrinted;
-
-//     if (bReturn)
-//     {
-//         printf("\r");
-//         printf("%s", prompt);
-//         #if 0
-//         char * pString = malloc(size+1);
-//         if (pString != NULL)
-//         {
-//             memcpy(pString, data, size);
-//             pString[size] = 0;
-//             printf("%s", pString);
-//             free(pString);
-//         }
-//         #endif
-//     }
-
-//     bLogWasLstPrinted = false;
+    bLogWasLstPrinted = false;
         
-//     bLogDisabled = true;
-//     return bReturn;
-// }
+    bLogDisabled = true;
+    return bReturn;
+}
+#endif  /* #if CONFIG_DRV_CONSOLE_CUSTOM_LOG_DISABLE_FIX */
+
+#endif  /* #if CONFIG_DRV_CONSOLE_CUSTOM */
+
 
 
 void drv_console_init(void)
 {
-#if CONFIG_USE_NEW_CONSOLE
+#if CONFIG_DRV_CONSOLE_CUSTOM
 
-
-    esp_console_repl_t *repl = NULL;
-    esp_console_repl_config_t repl_config = ESP_CONSOLE_REPL_CONFIG_DEFAULT();
-    //repl_config.prompt = "esp32>";
-
-
-    // init console REPL environment
-    #if CONFIG_ESP_CONSOLE_UART
-    if (uart_is_driver_installed(CONFIG_ESP_CONSOLE_UART_NUM))
-    {
-        uart_driver_delete(CONFIG_ESP_CONSOLE_UART_NUM);
-    }
-    esp_console_dev_uart_config_t uart_config = ESP_CONSOLE_DEV_UART_CONFIG_DEFAULT();
-    ESP_ERROR_CHECK(esp_console_new_repl_uart(&uart_config, &repl_config, &repl));
-    #elif CONFIG_ESP_CONSOLE_USB_CDC
-    esp_console_dev_usb_cdc_config_t cdc_config = ESP_CONSOLE_DEV_CDC_CONFIG_DEFAULT();
-    ESP_ERROR_CHECK(esp_console_new_repl_usb_cdc(&cdc_config, &repl_config, &repl));
-    #elif CONFIG_ESP_CONSOLE_USB_SERIAL_JTAG
-    esp_console_dev_usb_serial_jtag_config_t usbjtag_config = ESP_CONSOLE_DEV_USB_SERIAL_JTAG_CONFIG_DEFAULT();
-    ESP_ERROR_CHECK(esp_console_new_repl_usb_serial_jtag(&usbjtag_config, &repl_config, &repl));
-    #endif
-
-    // start console REPL
-    ESP_ERROR_CHECK(esp_console_start_repl(repl));
-
-
-#else
     set_console_uart_use();
     
 
@@ -443,6 +428,32 @@ void drv_console_init(void)
 
     drv_console_config_prompt();
 
+#else
+
+    esp_console_repl_t *repl = NULL;
+    esp_console_repl_config_t repl_config = ESP_CONSOLE_REPL_CONFIG_DEFAULT();
+    //repl_config.prompt = "esp32>";
+
+
+    // init console REPL environment
+    #if CONFIG_ESP_CONSOLE_UART
+    if (uart_is_driver_installed(CONFIG_ESP_CONSOLE_UART_NUM))
+    {
+        uart_driver_delete(CONFIG_ESP_CONSOLE_UART_NUM);
+    }
+    esp_console_dev_uart_config_t uart_config = ESP_CONSOLE_DEV_UART_CONFIG_DEFAULT();
+    ESP_ERROR_CHECK(esp_console_new_repl_uart(&uart_config, &repl_config, &repl));
+    #elif CONFIG_ESP_CONSOLE_USB_CDC
+    esp_console_dev_usb_cdc_config_t cdc_config = ESP_CONSOLE_DEV_CDC_CONFIG_DEFAULT();
+    ESP_ERROR_CHECK(esp_console_new_repl_usb_cdc(&cdc_config, &repl_config, &repl));
+    #elif CONFIG_ESP_CONSOLE_USB_SERIAL_JTAG
+    esp_console_dev_usb_serial_jtag_config_t usbjtag_config = ESP_CONSOLE_DEV_USB_SERIAL_JTAG_CONFIG_DEFAULT();
+    ESP_ERROR_CHECK(esp_console_new_repl_usb_serial_jtag(&usbjtag_config, &repl_config, &repl));
+    #endif
+
+    // start console REPL
+    ESP_ERROR_CHECK(esp_console_start_repl(repl));
+
 #endif
 
     esp_console_register_help_command();
@@ -451,8 +462,8 @@ void drv_console_init(void)
     ESP_LOGI(TAG, "Console Initialization complete!");
 }
 
-#if CONFIG_USE_NEW_CONSOLE
-#else
+#if CONFIG_DRV_CONSOLE_CUSTOM
+
 esp_err_t drv_console_run(const char *cmd_line, int *cmd_ret)
 {
     esp_err_t error;
@@ -482,16 +493,17 @@ static void drv_console_execute(void* parameters)
         if (line == NULL)
         {
             //printf("Command line is NULL\r\n");
-            ESP_LOGI(TAG, "Toggle Stop Log Request 1");
 
             bStopLogRequest = !bStopLogRequest;
             if (bStopLogRequest)
             {
                 bJustStopLog = true;
+                ESP_LOGI(TAG, "Stopped Log (on NULL line)");
             }
             else
             {
                 bJustStartLog = true;
+                ESP_LOGI(TAG, "Started Log (on NULL line)");
             }
             continue;
         }
@@ -510,15 +522,16 @@ static void drv_console_execute(void* parameters)
         else
         {
             printf("\r\n");
-            ESP_LOGI(TAG, "Toggle Stop Log Request 2");
             bStopLogRequest = !bStopLogRequest;
             if (bStopLogRequest)
             {
                 bJustStopLog = true;
+                ESP_LOGI(TAG, "Stopped Log (on zero line length)");
             }
             else
             {
                 bJustStartLog = true;
+                ESP_LOGI(TAG, "Started Log (on zero line length)");
             }
             continue;
         }
@@ -536,9 +549,6 @@ static void drv_console_execute(void* parameters)
 
         int ret;
         esp_err_t err = drv_console_run(line, &ret);
-
-        bLogDisabled = false;
-        bOtherLogDisabled = false;
 
         if (err == ESP_ERR_NOT_FOUND)
         {
@@ -562,23 +572,29 @@ static void drv_console_execute(void* parameters)
 
         ESP_LOGI(TAG, "Done Command '%s'", line);
         linenoiseFree(line);
+
+        bLogDisabled = false;
+        bOtherLogDisabled = false;
+
         vTaskDelay(pdMS_TO_TICKS(10));
     }
     console_task_handle = NULL;
     vTaskDelete(NULL);
 }
-#endif
+
+#endif  /* #if CONFIG_DRV_CONSOLE_CUSTOM */
 
 void drv_console_task(void)
 {
 
-#if CONFIG_USE_NEW_CONSOLE
+#if CONFIG_DRV_CONSOLE_CUSTOM
 
-#else 
     if (console_task_handle == NULL)
     {
         xTaskCreate(&drv_console_execute, "console", 2048 + 1024, NULL, 2, &console_task_handle);
         configASSERT(console_task_handle);
     }
+
 #endif
+
 }
