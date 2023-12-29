@@ -13,4 +13,8 @@ menu "Component drv_console Configuration"
         bool "Use Custom Console Log Disable"
         default n
 
+    config DRV_CONSOLE_LOG_NON_BLOCKING
+        bool "Use Non-blocking Log Print"
+        default y
+
 endmenu
