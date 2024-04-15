@@ -3,6 +3,8 @@ menu "Component drv_console Configuration"
     config DRV_CONSOLE_USE
         bool "Use drv_console component"
         default y
+        help
+            Use of component enabled by default
         
     config DRV_CONSOLE_CUSTOM
         bool "Use Custom Console"
